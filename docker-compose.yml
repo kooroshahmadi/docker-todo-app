@@ -2,12 +2,16 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    image: kooroshahmadi/todo-app:latest  # <--- MAKE SURE TO PUT YOUR USERNAME BACK HERE
     ports:
       - "8085:80"
     depends_on:
       - db
     restart: always
+    # BRIDGE TO DOKPLOY:
+    networks:
+      - dokploy-network
+      - default
 
   db:
     image: mysql:5.7
@@ -17,10 +21,16 @@ services:
       MYSQL_USER: user
       MYSQL_PASSWORD: test
     volumes:
-      # THE FIX: Mount the SQL file to the special startup folder
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      # Persist the data
       - db_data:/var/lib/mysql
+    # DB DOES NOT NEED PUBLIC ACCESS, BUT NEEDS TO TALK TO WEB
+    networks:
+      - default
 
 volumes:
   db_data:
+
+# DEFINE THE EXTERNAL NETWORK
+networks:
+  dokploy-network:
+    external: true

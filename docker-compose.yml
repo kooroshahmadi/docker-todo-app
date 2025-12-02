@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: todo_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: test
+    volumes:
+      # THE FIX: Mount the SQL file to the special startup folder
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Persist the data
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
